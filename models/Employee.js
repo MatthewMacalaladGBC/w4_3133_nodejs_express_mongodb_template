@@ -51,27 +51,78 @@ const EmployeeSchema = new mongoose.Schema({
     }
   },
   created: { 
-    type: Date
+    type: Date,
+    default: Date.now
   },
   updatedat: { 
-    type: Date
+    type: Date,
+    default: Date.now
   },
 });
 
 //Declare Virtual Fields
-
+EmployeeSchema.virtual("fullname")
+  .get(function () {
+    return this.firstname + " " + this.lastname;
+  })
+  .set(function (v) {
+    const parts = v.split(" ");
+    this.firstname = parts[0] || "";
+    this.lastname = parts[1] || "";
+  });
 
 //Custom Schema Methods
 //1. Instance Method Declaration
+EmployeeSchema.methods.getFullname = function () {
+  return this.firstname + " " + this.lastname;
+};
 
+EmployeeSchema.methods.getCurrentYear = function () {
+  return new Date().getFullYear();
+};
+
+EmployeeSchema.methods.isHighEarner = function (threshold = 100000) {
+  return this.salary > threshold;
+};
+
+EmployeeSchema.methods.applyRaise = function (percentage) {
+  const raiseAmount = (this.salary * percentage) / 100;
+  this.salary += raiseAmount;
+  return this.salary;
+}
 
 //2. Static method declararion
+EmployeeSchema.statics.findByEmail = function (email) {
+  return this.findOne({ email: email });
+};
 
+EmployeeSchema.statics.findByDesignation = function (designation) {
+  return this.find({ designation: new RegExp(designation, "i") });
+};
+
+EmployeeSchema.statics.findBySalaryRange = function (min, max) {
+  return this.find({ salary: { $gte: min, $lte: max } });
+};
+
+EmployeeSchema.statics.sortBySalary = function (order = "asc") {
+  const sortOrder = order === "asc" ? 1 : -1;
+  return this.find().sort({ salary: sortOrder });
+};
 
 //Writing Query Helpers
+EmployeeSchema.query.byCity = function (city) {
+  return this.where({ city: new RegExp(city, "i") });
+};
 
+EmployeeSchema.query.byDesignation = function (designation) {
+  return this.where({ designation: new RegExp(designation, "i") });
+};
 
+EmployeeSchema.query.bySalaryRange = function (min, max) {
+  return this.where({ salary: { $gte: min, $lte: max } });
+};
 
+// Using Middleware or Hooks
 EmployeeSchema.pre('save', () => {
   console.log("Before Save")
   let now = Date.now()
@@ -89,7 +140,6 @@ EmployeeSchema.pre('findOneAndUpdate', () => {
   this.updatedat = now
   console.log(this.updatedat)
 });
-
 
 EmployeeSchema.post('init', (doc) => {
   console.log('%s has been initialized from the db', doc._id);
