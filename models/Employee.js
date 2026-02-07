@@ -60,6 +60,7 @@ const EmployeeSchema = new mongoose.Schema({
   },
 });
 
+
 //Declare Virtual Fields
 EmployeeSchema.virtual("fullname")
   .get(function () {
@@ -92,6 +93,10 @@ EmployeeSchema.methods.applyRaise = function (percentage) {
 }
 
 //2. Static method declararion
+EmployeeSchema.statics.findByFirstName = function (firstname) {
+  return this.find({ firstname: firstname });
+}
+
 EmployeeSchema.statics.findByEmail = function (email) {
   return this.findOne({ email: email });
 };
@@ -140,6 +145,7 @@ EmployeeSchema.pre('findOneAndUpdate', () => {
   this.updatedat = now
   console.log(this.updatedat)
 });
+
 
 EmployeeSchema.post('init', (doc) => {
   console.log('%s has been initialized from the db', doc._id);
