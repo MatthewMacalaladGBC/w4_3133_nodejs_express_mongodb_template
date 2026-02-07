@@ -2,25 +2,53 @@ const mongoose = require('mongoose');
 
 const EmployeeSchema = new mongoose.Schema({
   firstname: {
-    type: String
+    type: String,
+    required: [ true, "First Name is required"],
+    minlength: [3, "First Name should be at least 3 characters"],
+    maxlength: [100, "First Name should be at most 100 characters"],
+    trim: true,
+    lowercase: true
   },
   lastname: {
-    type: String
+    type: String,
+    required: [ true, "Last Name is required"],
+    minlength: [3, "Last Name should be at least 3 characters"],
+    maxlength: [100, "Last Name should be at most 100 characters"],
+    trim: true,
+    lowercase: true
   },
   email: {
-    type: String
+    type: String,
+    unique: true,
+    required: [ true, "Email is required"],
+    trim: true,
+    lowercase: true
   },
   gender: {
-    type: String
+    type: String,
+    enum: ["Male", "Female", "Other"],
+    required: [ true, "Gender is required"],
   },
   city:{
-    type: String
+    type: String,
+    trim: true,
+    lowercase: true
   },
   designation: {
-    type: String
+    type: String,
+    trim: true,
+    lowercase: true
   },
   salary: {
-    type: Number
+    type: Number,
+    min: [1000, "Salary should be at least 1000"],
+    max: [100000, "Salary should be at most 100000"],
+    validate: {
+      validator: function(v) {
+        return Number.isInteger(v);
+      },
+      message: "Salary should be an integer value"
+    }
   },
   created: { 
     type: Date
