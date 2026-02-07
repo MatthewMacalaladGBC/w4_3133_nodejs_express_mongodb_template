@@ -131,7 +131,7 @@ app.get('/employees/test', async (req, res) => {
                         .limit(10)
                         .sort('-salary')
                         .select('firstname lastname salary')
-                        .exec((err, data) => {
+                        .exec().then((data, err) => {
                           if (err){
                               res.send(JSON.stringify({status:false, message: "No data found"}));
                           }else{
